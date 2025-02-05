@@ -29,13 +29,31 @@ if __name__ == '__main__':
     psd_width, psd_height = psd.size
     for layer in psd:
         if layer.offset != (0, 0):
+            print(layer.name)
             layer_image = layer.composite().convert('RGBA')
             full_image = np.zeros((psd_height, psd_width, 4), dtype=np.uint8)
             full_image_pil = Image.fromarray(full_image, 'RGBA')
             full_image_pil.paste(layer_image, layer.offset, layer_image)
             data = np.array(full_image_pil)
+
+            # remove all black pixels from line shapes
             black_pixels = (data[:, :, :3] == [0, 0, 0]).all(axis=-1)
             data[black_pixels] = [0, 0, 0, 0]
+
+            # Convert all non-black and non-transparent pixels to red
+            non_black_non_transparent_pixels = ~black_pixels & (data[:, :, 3] != 0)
+            data[non_black_non_transparent_pixels, :3] = [255, 0, 0]
+
+            # Iterate through data horizontally and fill in a red pixel with the most recent y value
+            for x in range(data.shape[1]):
+                last_y = None
+                for y in range(data.shape[0]):
+                    if non_black_non_transparent_pixels[y, x]:
+                        last_y = y
+                    elif last_y is not None:
+                        data[last_y, x, :3] = [255, 0, 0]
+                        data[last_y, x, 3] = 255
+
             full_image_pil = Image.fromarray(data, 'RGBA')
 
             full_image_pil.save(os.path.join(layersDir, '%s.png' % layer.name), format='PNG', dpi=(300, 300))

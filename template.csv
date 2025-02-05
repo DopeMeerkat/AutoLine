@@ -1,0 +1,19 @@
+ZoneID,Upper_Line,Lower_Line,Left,Right,Vertical_Mean,Vertical_SD,Width,Area_Mean,Area_SD,Total_Mean,Total_SD
+TGP,1,8,1,1,1,1,1,1,1,0,0
+GZ1,1,2,1,1,1,1,1,1,1,0,0
+GZ2,1,"	19									",1,1,1,1,1,1,1,TGP,TGP
+GZ3,1,"	20									",1,1,1,1,1,1,1,TGP,TGP
+GZM,1,"2+19+20=GZM									",1,1,1,1,1,1,1,TGP,TGP
+CZ1,GZM,"	5									",1,1,1,1,1,1,1,TGP,TGP
+CZ2,GMZ,"	6									",1,1,1,1,1,1,1,TGP,TGP
+CZM,GZM,5 + 6 =CZM,1,1,1,1,1,1,1,TGP,TGP
+PSZ,3,4,1,1,1,1,1,1,1,TGP,TGP
+PHZ,CZM,7,1,1,1,1,1,1,1,TGP,TGP
+HZ,7,8,1,1,1,1,1,1,1,TGP,TGP
+TMZ,8,13,1,1,1,1,1,1,1,0,0
+PMZ,8,12,1,1,1,1,1,1,1,TMZ,TMZ
+OMZ,12,13,1,1,1,1,1,1,1,TMZ,TMZ
+D1C,7,15,0,0,1,1,0,0,1,0,0
+D3C,7,16,0,0,1,1,0,0,1,0,0
+D1B,12,17,0,0,1,1,0,0,1,0,0
+D3B,12,18,0,0,1,1,0,0,1,0,0
