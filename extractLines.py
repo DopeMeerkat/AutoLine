@@ -24,6 +24,7 @@ if __name__ == '__main__':
         os.mkdir(folder)
         os.mkdir(layersDir)
         os.mkdir(dataDir)
+        os.mkdir(os.path.join(os.path.join(folder, 'Records')))
 
     psd = PSDImage.open(filename)
     psd_width, psd_height = psd.size

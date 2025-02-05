@@ -5,7 +5,7 @@ GZ2,1,"	19									",1,1,1,1,1,1,1,TGP,TGP
 GZ3,1,"	20									",1,1,1,1,1,1,1,TGP,TGP
 GZM,1,"2+19+20=GZM									",1,1,1,1,1,1,1,TGP,TGP
 CZ1,GZM,"	5									",1,1,1,1,1,1,1,TGP,TGP
-CZ2,GMZ,"	6									",1,1,1,1,1,1,1,TGP,TGP
+CZ2,GZM,"	6									",1,1,1,1,1,1,1,TGP,TGP
 CZM,GZM,5 + 6 =CZM,1,1,1,1,1,1,1,TGP,TGP
 PSZ,3,4,1,1,1,1,1,1,1,TGP,TGP
 PHZ,CZM,7,1,1,1,1,1,1,1,TGP,TGP

@@ -63,49 +63,52 @@ def getArea(line2Path, line1Path, savePath = None, customStart = None, customEnd
     # print('trimmed mean:', stats.trim_mean(y, 0.1) )
     return mean, sd, start, end
 
-def getAvg(line1Path, line2Path, savePath=None): #layers path
-    line1 = np.load(line1Path)
-    line2 = np.load(line2Path)
+def getAvg(lines, linenames, sectionName):
+    linedata = []
+    for line in lines:
+        try:
+            linedata.append(np.load(os.path.join(dir, 'LineData', linenames[int(line.strip())])))
+        except:
+            print(f'Line {int(line.strip())} not found')
+            break
 
-    x = list(range(1,line1.shape[1]))
-    # y = [0] * (line1.shape[1])
-    y = np.zeros(line1.shape)
-    # print(line1.shape)
-    # print(line2.shape)
+    x = list(range(1,linedata[0].shape[1]))
+    y = np.zeros(linedata[0].shape)
+    
+    # for i in range(600):#x:
     for i in x:
-        line1Y = np.where(line1[: ,i] == 1)[0]
-        line2Y = np.where(line2[: ,i] == 1)[0]
-        # print(line1Y.size, line2Y.size)
-        if line1Y.size != 0 and line2Y.size != 0:
-            # print(i)
-            avg = (np.median(line1Y) + np.median(line2Y))/2
-            y[int(avg)][i] = 1
-            # print(y[i][x])
+        # print(i)
+        avg = 0
+        skip = False
+        for line in linedata:
+            lineY = np.where(line[: ,i] > 0)[0]
+            # print(lineY)
+            if lineY.size != 0:
+                avg += np.median(lineY)
+            else:
+                skip = True
+                break
+            
+        if skip:
+            continue
+
+        avg = avg/len(linedata)
+        y[int(avg)][i] = 1
+
     y = cv2.dilate(y, kernel=np.ones((7,7), np.uint8))
-    lines = line1+line2
 
     f, (ax1,ax2) = plt.subplots(2, 1, sharex=True, figsize=(6,10))
-    ax1.imshow(lines, origin='upper', aspect='auto')
+    allLines=linedata[0]
+    for line in linedata[1:]:
+        allLines+=line
+    ax1.imshow(allLines, origin='upper', aspect='auto')
     ax2.imshow(y, aspect='auto')
-    plt.show()
-    # print('trimmed mean:', stats.trim_mean(y, 0.1) )
-    if savePath != None:
-        im = np.zeros((line1.shape[0], line1.shape[1],4))
-        im[:, :, 0] = y*255
-        im[:, :, 3] = y*255
-        cv2.imwrite(os.path.join(savePath, os.path.join('LineImages', os.path.basename(line2Path) + '_' + os.path.basename(line1Path)+ '_Avg.png'), im))
-        np.save(os.path.join(savePath, os.path.join('LineData', os.path.basename(line2Path) + '_' + os.path.basename(line1Path)+ '_Avg.npy'), y))
+    # plt.show()
+    plt.savefig(os.path.join(dir, 'Records', sectionName + '_Avg.png'))
 
-
-# cwd = os.getcwd()
-# upPath = os.path.join(cwd, 'tests/CCC_K10_FL1_s2_Layers/LineData/DPUCL.npy')
-# # line2Path = os.path.join(cwd, 'CCC_K01_FL1_Layers/LineData/GZAP.npy')
-# lowPath = os.path.join(cwd, 'tests/CCC_K10_FL1_s2_Layers/LineData/DPUML.npy') 
-# getArea(upPath, lowPath)
-
-
-# line1Path = os.path.join(cwd, 'tests/CCC_K10_FL1_s2_Layers/LineData/C5GLL.npy') #Lower
-# # line2Path = os.path.join(cwd, 'CCC_K01_FL1_Layers/LineData/GZAP.npy')
-# line2Path = os.path.join(cwd, 'tests/CCC_K10_FL1_s2_Layers/LineData/GZAP.npy') #Upper
-# savePath = os.path.join(cwd, 'tests/CCC_K10_FL1_s2_Layers/LineData/C5GLL_GZAP_Avg.npy')
-# getAvg(line1Path, line2Path, savePath)
+    im = np.zeros((linedata[0].shape[0], linedata[0].shape[1],4))
+    im = y*255
+    # im[:, :, 3] = y*255
+    cv2.imwrite(os.path.join(dir, 'LineImages', sectionName +'.png'), im)
+    np.save(os.path.join(dir, 'LineData', sectionName +'.npy'), y)
+    return y

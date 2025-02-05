@@ -49,70 +49,33 @@ for index, row in df.iterrows():
             zoneID = zoneID.replace('\t', '')
             new_columns.append(zoneID + '_' + col.replace('\t', ''))
 
-    upperline , lowerline = '', ''
-    try: 
-        int(row['Upper_Line'])
+    upperline , lowerline = None, None
+    try: # if type is str
+        upperline = np.load(os.path.join(dir, 'LineData', linenames[row['Upper_Line']]))
     except:
-        pass
-        # print(row['Upper_Line'].strip())    
+        try:
+            upperline = np.load(os.path.join(dir, 'LineData', linenames[int(row['Upper_Line'])]))
+        except:
+            print(f'File {row['Upper_Line'].strip()} not found')
+        
 
-    try: 
-        int(row['Lower_Line'])
-    except:
+    try: # if type is str
         lowerline = row['Lower_Line'].strip()
         # print(lowerline)
-        if '+' in lowerline:
-            sectionName = lowerline.split('=')[1]
-            sectionName.strip()
-            lines = lowerline.split('=')[0].split('+')
-            linedata = []
-            for line in lines:
-                try:
-                    linedata.append(np.load(os.path.join(dir, 'LineData', linenames[int(line.strip())])))
-                except:
-                    print(f'Line {int(line.strip())} not found')
-                    break
+        sectionName = lowerline.split('=')[1]
+        sectionName.strip()
+        lines = lowerline.split('=')[0].split('+')
+        if sectionName in linenames:
+            lowerline = np.load(os.path.join(dir, 'LineData', linenames[sectionName]))
+        else: lowerline = getAvg(lines, linenames, sectionName)
 
-            x = list(range(1,linedata[0].shape[1]))
-            y = np.zeros(linedata[0].shape)
-            
-            # for i in range(600):#x:
-            for i in x:
-                # print(i)
-                avg = 0
-                skip = False
-                for line in linedata:
-                    lineY = np.where(line[: ,i] > 0)[0]
-                    # print(lineY)
-                    if lineY.size != 0:
-                        avg += np.median(lineY)
-                    else:
-                        skip = True
-                        break
-                    
-                if skip:
-                    continue
+    except:
+        try:
+            lowerline = np.load(os.path.join(dir, 'LineData', linenames[int(row['Lower_Line'])]))
+        except:
+            print(f'File {row['Lower_Line'].strip()} not found')
 
-                avg = avg/len(linedata)
-                y[int(avg)][i] = 1
-
-            y = cv2.dilate(y, kernel=np.ones((7,7), np.uint8))
-
-            # f, (ax1,ax2) = plt.subplots(2, 1, sharex=True, figsize=(6,10))
-            # allLines=linedata[0]
-            # for line in linedata[1:]:
-            #     allLines+=line
-            # ax1.imshow(allLines, origin='upper', aspect='auto')
-            # ax2.imshow(y, aspect='auto')
-            # plt.show()
-
-            im = np.zeros((linedata[0].shape[0], linedata[0].shape[1],4))
-            im = y*255
-            # im[:, :, 3] = y*255
-            cv2.imwrite(os.path.join(dir, 'LineImages', sectionName +'.png'), im)
-            np.save(os.path.join(dir, 'LineData', sectionName +'.npy'), y)
-
-
+    # print(row['ZoneID'], type(upperline), type(lowerline))
 
 # # Create a new DataFrame with the new columns
 # new_df = pd.DataFrame(columns=new_columns)
