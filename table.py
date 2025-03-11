@@ -77,6 +77,50 @@ for index, row in df.iterrows():
 
     # print(row['ZoneID'], type(upperline), type(lowerline))
 
+
+    # calc area
+    if type(upperline) == np.ndarray and type(lowerline) == np.ndarray:
+        x = list(range(1, upperline.shape[1]))
+        # y = [0] * (line1.shape[1])
+        y = np.zeros((upperline.shape[1],1))
+        # print(y.shape)
+        for i in x:
+            line1Y = np.where(upperline[: ,i] == 1)[0]
+            line2Y = np.where(lowerline[: ,i] == 1)[0]
+            # print(line1Y.size, line2Y.size)
+            if line1Y.size != 0 and line2Y.size != 0:
+                y[i] = np.median(line1Y) - np.median(line2Y)
+            else:
+                y[i] = 0
+
+        y[y==0] = np.nan
+        yFinite = np.argwhere(np.isfinite(y)) #get indexes of non NaN to find endpoints of line
+
+        start = yFinite[0][0]
+        end = yFinite[-1][0]
+        y[:start] = np.nan
+        y[end:] = np.nan
+        mean =  abs(y[~np.isnan(y)].mean())
+        sd =  y[~np.isnan(y)].std()
+
+
+        lines = upperline+lowerline
+        f, (ax1,ax2) = plt.subplots(2, 1, height_ratios=[10,4], sharex=True, figsize=(6,10))
+        ax1.imshow(lines, origin='upper', aspect='auto')
+        textstr = '\n'.join((
+        r'mean=%.2f' % (mean, ),
+        r'SD=%.2f' % (sd, )))
+
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        ax1.text(0.05, 0.95, textstr, transform=ax1.transAxes, fontsize=14,
+                verticalalignment='top', bbox=props)
+
+        ax2.plot(y)
+        plt.show()
+
+        print(zoneID, mean, sd)
+    
+
 # # Create a new DataFrame with the new columns
 # new_df = pd.DataFrame(columns=new_columns)
 
