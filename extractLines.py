@@ -19,12 +19,15 @@ if __name__ == '__main__':
     dirname = os.path.dirname(filename)
     folder = os.path.join(dirname, os.path.basename(filename)[:-4])
     layersDir = os.path.join(os.path.join(folder, 'LineImages'))
+    
+    referenceDir = os.path.join(os.path.join(folder, 'ReferenceImages'))
     dataDir = os.path.join(os.path.join(folder, 'LineData'))
     if not os.path.exists(folder):
         os.mkdir(folder)
         os.mkdir(layersDir)
         os.mkdir(dataDir)
         os.mkdir(os.path.join(os.path.join(folder, 'Records')))
+        os.mkdir(referenceDir)
 
     psd = PSDImage.open(filename)
     psd_width, psd_height = psd.size
@@ -59,3 +62,13 @@ if __name__ == '__main__':
 
             full_image_pil.save(os.path.join(layersDir, '%s.png' % layer.name), format='PNG', dpi=(300, 300))
             np.save(os.path.join(dataDir, '%s.npy' % layer.name), data)
+        else:
+            print(layer.name)
+            layer_image = layer.composite().convert('RGBA')
+            full_image = np.zeros((psd_height, psd_width, 4), dtype=np.uint8)
+            full_image_pil = Image.fromarray(full_image, 'RGBA')
+            full_image_pil.paste(layer_image, layer.offset, layer_image)
+            data = np.array(full_image_pil)
+            full_image_pil = Image.fromarray(data, 'RGBA')
+
+            full_image_pil.save(os.path.join(layersDir, '%s.png' % layer.name), format='PNG', dpi=(300, 300))

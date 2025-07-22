@@ -44,7 +44,7 @@ def getArea(line2Path, line1Path, savePath = None, customStart = None, customEnd
 
 
     f, (ax1,ax2) = plt.subplots(2, 1, height_ratios=[10,4], sharex=True, figsize=(6,10))
-    ax1.imshow(lines, origin='upper', aspect='auto')
+    ax1.imshow(lines.astype('uint8'), origin='upper', aspect='auto')
 
     
     textstr = '\n'.join((
@@ -112,3 +112,8 @@ def getAvg(lines, linenames, sectionName):
     cv2.imwrite(os.path.join(dir, 'LineImages', sectionName +'.png'), im)
     np.save(os.path.join(dir, 'LineData', sectionName +'.npy'), y)
     return y
+
+if __name__ == '__main__':
+    getArea(r'images\CCC_K10_F3_L1_crop\LineData\08_SOGCB.npy', r'images\CCC_K10_F3_L1_crop\LineData\07_D0CML.npy')
+    # OR
+    # getArea('images/CCC_K10_F3_L1_crop/LineData/01_SOGUL.npy', 'images/CCC_K10_F3_L1_crop/LineData/08_SOGCB.npy')
